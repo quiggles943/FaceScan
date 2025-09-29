@@ -10,7 +10,16 @@
     <PackageProjectUrl>https://github.com/quiggles943/FaceScan</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/quiggles943/FaceScan</RepositoryUrl>
+    <Authors>quiggles943</Authors>
+    <PackageIcon>face-scan.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="D:\Users\Paul\Downloads\face-scan.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FaceAiSharp" Version="0.5.23" />
