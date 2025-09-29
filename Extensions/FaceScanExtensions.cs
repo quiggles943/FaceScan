@@ -14,11 +14,11 @@ namespace FaceScan.Extensions
         {
             ArgumentNullException.ThrowIfNull(a, nameof(a));
             ArgumentNullException.ThrowIfNull(b, nameof(b));
-            if (a.Vectors.Count != b.Vectors.Count)
+            if (a.GetVectors().Count != b.GetVectors().Count)
             {
                 throw new ArgumentException("Vector lengths do not match.");
             }
-            return a.Vectors.Dot(b.Vectors);
+            return a.GetVectors().Dot(b.GetVectors());
         }
     }
 }

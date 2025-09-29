@@ -4,11 +4,6 @@ using FaceScan.Interfaces;
 using FaceScan.Structures;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FaceScan
 {
@@ -18,7 +13,7 @@ namespace FaceScan
         public float PotentialMatchThreshold { get; protected set; }
         private ILogger Logger = NullLogger<FaceScanComparator>.Instance;
 
-        public FaceScanResult CompareModelAgainstFaceScans(IScannedFace scannedFace, List<IScannedFace> faceScans)
+        public FaceScanResult CompareModelAgainstFaceScans(IScannedFace scannedFace, IEnumerable<IScannedFace> faceScans)
         {
             ArgumentNullException.ThrowIfNull(scannedFace, nameof(scannedFace));
             ArgumentNullException.ThrowIfNull(faceScans, nameof(faceScans));

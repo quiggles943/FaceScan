@@ -23,5 +23,20 @@ namespace FaceScan.Structures
             Landmarks = new ReadOnlyCollection<FaceScanLandmark>(landmarks);
             Vectors = new ReadOnlyCollection<float>(vectors);
         }
+
+        public IReadOnlyCollection<float> GetVectors()
+        {
+            return Vectors;
+        }
+
+        public IReadOnlyCollection<ILandmark> GetLandmarks()
+        {
+            return Landmarks;
+        }
+
+        public FaceScanCoordinates GetCoordinates()
+        {
+            return Coordinates;
+        }
     }
 }

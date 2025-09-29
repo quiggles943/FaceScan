@@ -1,19 +1,10 @@
 ﻿using FaceAiSharp;
-using FaceAiSharp.Extensions;
-using FaceScan.Enums;
-using FaceScan.Extensions;
 using FaceScan.Interfaces;
 using FaceScan.Structures;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FaceScan
 {
