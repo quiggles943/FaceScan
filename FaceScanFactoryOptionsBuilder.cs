@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FaceScan.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -31,14 +32,9 @@ namespace FaceScan
         /// used.</remarks>
         internal float? PotentialMatchThreshold { get; set; }
 
-        /// <summary>
-        /// Indicates whether the search operation should stop after the first positive match is
-        /// found.
-        /// </summary>
-        /// <remarks>When <see langword="false"/>, the facescan will continue searching for additional
-        /// matches after a positive result is found. By default, the search stops after the first positive
-        /// match.</remarks>
-        internal bool StopSearchAfterPositiveMatch { get; set; } = true;
+        internal PositiveScanReturnType? PositiveScanReturnType { get; set; }
+
+        internal bool UseCuda { get; set; } = false;
 
         /// <summary>
         /// Sets the threshold value used to determine a positive face match.
@@ -78,16 +74,19 @@ namespace FaceScan
         }
 
         /// <summary>
-        /// Configures whether multiple positive face matches are allowed during the scan process.
+        /// Determines what the Comparator should do when evaluating positive matches.
         /// </summary>
-        /// <remarks>When multiple positive matches are allowed, the scan will continue after the first
-        /// positive match is found, potentially reporting additional matches. If not allowed, the scan stops after the
-        /// first positive match.</remarks>
-        /// <param name="allowMultiplePositiveMatches">true to allow multiple positive matches to be reported; otherwise, false. The default is false.</param>
-        /// <returns>The current instance of the FaceScanFactoryOptionsBuilder for method chaining.</returns>
-        public FaceScanFactoryOptionsBuilder AllowMultiplePositiveMatches(bool allowMultiplePositiveMatches = false)
+        /// <param name="returnType">The strategy for how to return a positive match. Defaults to the first positive match found</param>
+        /// <returns></returns>
+        public FaceScanFactoryOptionsBuilder SetPositiveScanReturnType(PositiveScanReturnType returnType)
         {
-            StopSearchAfterPositiveMatch = !allowMultiplePositiveMatches;
+            PositiveScanReturnType = returnType;
+            return this;
+        }
+
+        public FaceScanFactoryOptionsBuilder UseCudaAcceleration(bool useCuda)
+        {
+            UseCuda = useCuda;
             return this;
         }
     }

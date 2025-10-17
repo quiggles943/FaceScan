@@ -17,6 +17,7 @@ namespace FaceScan.Extensions
             services.AddSingleton(factory);
             services.AddTransient(provider => factory.CreateFaceScanGenerator());
             services.AddTransient(provider => factory.CreateFaceScanComparator());
+            services.AddTransient(provider => factory.CreateAggregateModelGenerator());
             return services;
         }
     }

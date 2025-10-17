@@ -1,38 +1,71 @@
 ﻿using FaceScan.Enums;
 using FaceScan.Extensions;
 using FaceScan.Interfaces;
+using FaceScan.Interfaces.Enums;
 using FaceScan.Structures;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FaceScan
 {
-    public class FaceScanComparator
+    public class FaceScanComparator: IFaceScanComparator
     {
         public float PositiveMatchThreashold { get; protected set; }
         public float PotentialMatchThreshold { get; protected set; }
+        public PositiveScanReturnType PositiveScanReturnType { get; protected set; }
         private ILogger Logger = NullLogger<FaceScanComparator>.Instance;
 
-        public FaceScanResult CompareModelAgainstFaceScans(IScannedFace scannedFace, IEnumerable<IScannedFace> faceScans)
+        private FaceScanComparator()
+        {
+
+        }
+
+        /// <summary>
+        /// Compares a scanned face model against a collection of face scans to identify potential and positive matches.
+        /// </summary>
+        /// <typeparam name="T">The type of the Scanned face model</typeparam>
+        /// <param name="scannedFace">The scanned face to compare</param>
+        /// <param name="faceScans">A list of facescans to compare the scanned face to</param>
+        /// <returns></returns>
+        public IIndividualFaceScanResult<T> CompareModelAgainstFaceScans<T>(T scannedFace, IEnumerable<T> faceScans) where T : IFaceModel
         {
             ArgumentNullException.ThrowIfNull(scannedFace, nameof(scannedFace));
             ArgumentNullException.ThrowIfNull(faceScans, nameof(faceScans));
-            var result = new FaceScanResult();
+            var result = new IndividualFaceScanResult<T>();
             foreach (var face in faceScans)
             {
                 var comparisonResult = CompareFaceScanModels(scannedFace, face);
-                if (comparisonResult.ResultType != FaceScanResultType.NoMatch)
+                if(comparisonResult.ResultType == FaceScanResultType.NoMatch)
                 {
-                    result.Matches.Add(new FaceScanMatch(comparisonResult));
+                    continue;
+                }
+                FaceScanMatch<T> faceScanMatch = new FaceScanMatch<T>(face, comparisonResult);
+                result.PotentialMatches.Add(new FaceScanMatch<T>(face, comparisonResult));
+
+                if (comparisonResult.ResultType == FaceScanResultType.PositiveMatch)
+                {
+                    if (PositiveScanReturnType == PositiveScanReturnType.ReturnFirstMatch)
+                    {
+                        result.PositiveMatch = faceScanMatch;
+                        result.MaxConfidenceScore = faceScanMatch.SimilarityScore;
+                        break;
+                    }
+                    else if (PositiveScanReturnType == PositiveScanReturnType.ReturnBestMatch)
+                    {
+                        if (!result.PositiveMatch.HasValue || faceScanMatch.SimilarityScore > result.PositiveMatch.Value.SimilarityScore)
+                        {
+                            result.PositiveMatch = faceScanMatch;
+                            result.MaxConfidenceScore = faceScanMatch.SimilarityScore;
+                        }
+                    }
                 }
             }
-            if (result.Matches.Count > 0)
+            if (!result.HasPositiveMatch && result.PotentialMatches.Count > 0)
             {
-                result.MaxConfidenceScore = result.Matches.Max(x => x.SimilarityScore);
+                result.MaxConfidenceScore = result.PotentialMatches.Max(x => x.SimilarityScore);
             }
             return result;
         }
-
 
         /// <summary>
         /// Compares two scanned face models and determines the similarity and match result between them.
@@ -43,7 +76,7 @@ namespace FaceScan
         /// <param name="comparison">The scanned face model to compare against.</param>
         /// <returns>A FaceScanComparisonResult containing the similarity score and the type of match result between the two face
         /// models.</returns>
-        public FaceScanComparisonResult CompareFaceScanModels(IScannedFace detectedFace, IScannedFace comparison)
+        public FaceScanComparisonResult CompareFaceScanModels(IFaceModel detectedFace, IFaceModel comparison)
         {
             ArgumentNullException.ThrowIfNull(detectedFace, nameof(detectedFace));
             ArgumentNullException.ThrowIfNull(comparison, nameof(comparison));
@@ -67,10 +100,11 @@ namespace FaceScan
             private float positiveMatchThreashold = 0.42f;
             private float potentialMatchThreshold = 0.18f;
             private ILogger logger = new NullLogger<FaceScanComparator>();
+            private PositiveScanReturnType positiveScanReturnType = PositiveScanReturnType.ReturnFirstMatch;
 
             public FaceScanComparator Build()
             {
-                return new FaceScanComparator() { PositiveMatchThreashold = positiveMatchThreashold, PotentialMatchThreshold = potentialMatchThreshold, Logger = logger };
+                return new FaceScanComparator() { PositiveMatchThreashold = positiveMatchThreashold, PotentialMatchThreshold = potentialMatchThreshold, Logger = logger, PositiveScanReturnType = positiveScanReturnType };
             }
 
             /// <summary>
@@ -100,6 +134,12 @@ namespace FaceScan
             public Builder WithLogger(ILogger logger)
             {
                 this.logger = logger;
+                return this;
+            }
+
+            public Builder WithPositiveScanReturnType(PositiveScanReturnType returnType)
+            {
+                positiveScanReturnType = returnType;
                 return this;
             }
         }

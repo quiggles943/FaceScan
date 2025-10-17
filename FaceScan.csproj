@@ -10,8 +10,9 @@
     <PackageProjectUrl>https://github.com/quiggles943/FaceScan</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/quiggles943/FaceScan</RepositoryUrl>
-    <Authors>quiggles943</Authors>
+    <Authors>Quiggles943</Authors>
     <PackageIcon>face-scan.png</PackageIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,9 +25,11 @@
   <ItemGroup>
     <PackageReference Include="FaceAiSharp" Version="0.5.23" />
     <PackageReference Include="FaceAiSharp.Bundle" Version="0.5.23" />
-    <PackageReference Include="FaceONNX" Version="4.1.1.1" />
-    <PackageReference Include="FaceONNX.Addons" Version="4.1.1.1" />
-    <PackageReference Include="FaceScan.Interfaces" Version="1.0.2" />
+    <PackageReference Include="FaceAiSharp.Models.ArcFace.LResNet100E-IR-int8" Version="0.20230419.1" />
+    <PackageReference Include="FaceONNX" Version="4.1.1.2" />
+    <PackageReference Include="FaceONNX.Addons" Version="4.1.1.2" />
+    <PackageReference Include="FaceScan.Interfaces" Version="1.0.8" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +37,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Enums\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FaceScan.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FaceScan
 {
-    public class FaceScanFactory
+    public class FaceScanFactory: IFaceScanFactory
     {
         public FaceScanFactoryOptionsBuilder? Options { get; private set; }
         private ILogger Logger { get; set; } = new NullLogger<FaceScanFactory>();
@@ -63,13 +64,14 @@ namespace FaceScan
         /// </summary>
         /// <remarks>If no options are set, the FaceScanGenerator is created with default thresholds.</remarks>
         /// <returns>A FaceScanGenerator instance configured with the current logger and any specified options.</returns>
-        public FaceScanGenerator CreateFaceScanGenerator()
+        public IFaceScanGenerator CreateFaceScanGenerator()
         {
             Logger.LogDebug("Creating FaceScanGenerator with pre-configured options.");
             var builder = new FaceScanGenerator.Builder();
             builder.WithLogger(LoggerFactory.CreateLogger(typeof(FaceScanGenerator)));
             if (Options == null)
                 return builder.Build();
+            builder.UseCuda(Options.UseCuda);
             return builder.Build();
         }
 
@@ -81,7 +83,7 @@ namespace FaceScan
         /// <param name="configure">A delegate that configures the FaceScanFactoryOptionsBuilder to specify custom options for the
         /// FaceScanGenerator. Cannot be null.</param>
         /// <returns>A FaceScanGenerator instance configured with the specified options.</returns>
-        public FaceScanGenerator CreateFaceScanGenerator(Action<FaceScanFactoryOptionsBuilder> configure)
+        public IFaceScanGenerator CreateFaceScanGenerator(Action<FaceScanFactoryOptionsBuilder> configure)
         {
             ArgumentNullException.ThrowIfNull(configure);
             Logger.LogDebug("Creating FaceScanGenerator with override options.");
@@ -90,10 +92,11 @@ namespace FaceScan
 
             var builder = new FaceScanGenerator.Builder();
             builder.WithLogger(LoggerFactory.CreateLogger(typeof(FaceScanGenerator)));
+            builder.UseCuda(options.UseCuda);
             return builder.Build();
         }
 
-        public FaceScanComparator CreateFaceScanComparator()
+        public IFaceScanComparator CreateFaceScanComparator()
         {
             Logger.LogDebug("Creating FaceScanComparator with pre-configured options.");
             var builder = new FaceScanComparator.Builder();
@@ -104,22 +107,32 @@ namespace FaceScan
                 builder.WithPotentialMatchThreshold(Options.PotentialMatchThreshold.Value);
             if (Options.PositiveMatchThreashold.HasValue)
                 builder.WithPositiveMatchThreashold(Options.PositiveMatchThreashold.Value);
+            if(Options.PositiveScanReturnType.HasValue)
+                builder.WithPositiveScanReturnType(Options.PositiveScanReturnType.Value);
             return builder.Build();
         }
 
-        public FaceScanComparator CreateFaceScanComparator(Action<FaceScanFactoryOptionsBuilder> configure)
+        public IFaceScanComparator CreateFaceScanComparator(Action<FaceScanFactoryOptionsBuilder> configure)
         {
             ArgumentNullException.ThrowIfNull(configure);
             Logger.LogDebug("Creating FaceScanComparator with override options.");
             var options = new FaceScanFactoryOptionsBuilder();
             configure(options);
 
-            Logger.LogTrace("Override options - PositiveMatchThreshold:{PositiveMatchThreashold}, PotentialMatchThreshold:{PotentialMatchThreshold}", options.PositiveMatchThreashold, options.PotentialMatchThreshold);
+            Logger.LogTrace("Override options - PositiveMatchThreshold:{PositiveMatchThreashold}, PotentialMatchThreshold:{PotentialMatchThreshold}, PositiveScanReturnType:{PositiveScanReturnType}", options.PositiveMatchThreashold, options.PotentialMatchThreshold, options.PositiveScanReturnType);
             var builder = new FaceScanComparator.Builder();
             if (options.PotentialMatchThreshold.HasValue)
                 builder.WithPotentialMatchThreshold(options.PotentialMatchThreshold.Value);
             if (options.PositiveMatchThreashold.HasValue)
                 builder.WithPositiveMatchThreashold(options.PositiveMatchThreashold.Value);
+            if (options.PositiveScanReturnType.HasValue)
+                builder.WithPositiveScanReturnType(options.PositiveScanReturnType.Value);
+            return builder.Build();
+        }
+
+        public IAggregateModelGenerator CreateAggregateModelGenerator()
+        {
+            var builder = new AggregateModelGenerator.Builder();
             return builder.Build();
         }
     }
